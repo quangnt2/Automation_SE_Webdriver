@@ -26,14 +26,11 @@ public class commonResources {
         driver.findElement(element).clear();
         driver.findElement(element).sendKeys(text);
     }
-
     public void clickButton(By element) {
         Scroll(element);
         wait.until(ExpectedConditions.elementToBeClickable(element));
         driver.findElement(element).click();
     }
-
-
     public void Scroll(By element) {
         WebElement scroll = driver.findElement(element);
         if (element != null) {
@@ -51,22 +48,16 @@ public class commonResources {
         email = email.substring(0, Math.min(email.length(), 4)) + "@gmail.com";
         return email;
     }
-
     public String randomPhone() {
         Random random = new Random();
         String[] networkCodes = {"032", "033", "034", "035", "036", "037", "038", "039", "070", "079", "077", "076", "078",
                 "083", "084", "085", "081", "082",
                 "086", "088", "089"};
-        String ranDomNetworCodes = networkCodes[random.nextInt(networkCodes.length)];
+        String ranDomNetworkCodes = networkCodes[random.nextInt(networkCodes.length)];
         String ranDomNumber = String.format("%05d", random.nextInt(9999));
-        return ranDomNetworCodes + ranDomNumber;
+        return ranDomNetworkCodes + ranDomNumber;
     }
 
-    public static void main(String[] args) {
-        String data = randomId();
-        System.out.printf(String.valueOf(data));
-
-    }
 
     public static String randomAge() {
         Random random = new Random();
@@ -87,8 +78,8 @@ public class commonResources {
 
     public static String randomId() {
         Random random = new Random();
-        String randomID = String.valueOf(random.nextInt(100));
-        return randomID;
+        String randomId = String.valueOf(random.nextInt(100));
+        return randomId;
     }
 
 }

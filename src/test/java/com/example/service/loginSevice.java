@@ -3,12 +3,11 @@ package com.example.service;
 import com.example.element.loginElement;
 import com.example.setUpDriver.commonResources;
 import com.example.setUpDriver.takeScreenshotService;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
 import java.time.Duration;
@@ -16,18 +15,18 @@ import java.time.Duration;
 import static org.testng.Assert.fail;
 
 public class loginSevice {
+    private static final Logger log = LoggerFactory.getLogger(loginSevice.class);
     public WebDriver driver;
-    private WebDriverWait wait;
-    private commonResources commonResources;
-    private loginElement loginElement;
-    private takeScreenshotService screenshotService;
+    private final WebDriverWait wait;
+    private final commonResources commonResources;
+    private final loginElement loginElement;
 
     public loginSevice(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(100));
         commonResources = new commonResources(driver);
         loginElement = new loginElement();
-        screenshotService = new takeScreenshotService();
+        takeScreenshotService screenshotService = new takeScreenshotService();
     }
 
     public void redirectURL(String URL) {
@@ -47,11 +46,11 @@ public class loginSevice {
             commonResources.clickButton(loginElement.btnLogout);
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(loginElement.user));
-            }catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
                 fail("Đăng xuất không thành công");
             }
         } catch (NoSuchElementException e) {
-            fail("Không đăng nhập thành coong");
+            fail("Không đăng nhập thành công");
         }
     }
 
@@ -61,7 +60,7 @@ public class loginSevice {
         commonResources.clickButton(loginElement.submit);
         Thread.sleep(3000);
         String url = driver.getCurrentUrl();
-        String expectUrl = "http://tnm30test.tringhiatech.vn:9902/account/login";
+        String expectUrl = "http://103.138.113.158:9912/account/login";
         if (!url.equals(expectUrl)) {
             fail("Lỗi ");
         }
@@ -83,6 +82,7 @@ public class loginSevice {
             }
         }
     }
+
     public void loginAccount(String user, String pass) {
         commonResources.setText(loginElement.user, user);
         commonResources.setText(loginElement.pass, pass);
@@ -99,4 +99,52 @@ public class loginSevice {
         }
     }
 
+    public void EmptyUserNamePassword(String userName, String password) {
+        commonResources.setText(loginElement.user, userName);
+        commonResources.setText(loginElement.pass, password);
+        try {
+            WebElement element = driver.findElement(By.xpath("//body/app-root[1]/ng-component[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/ng-component[1]/div[1]/form[1]/div[4]"));
+            String getStatusElement = element.getAttribute("disabled");
+            Assert.assertNotNull(getStatusElement, "Buton đã bị disable");
+        } catch (NoSuchElementException e) {
+            log.error("e: ", e);
+        }
+        commonResources.clickButton(loginElement.submit);
+    }
+
+    public void CustomerLogin(String user, String password) throws InterruptedException {
+        commonResources.setText(loginElement.user, user);
+        commonResources.setText(loginElement.pass, password);
+        commonResources.clickButton(loginElement.submit);
+        Thread.sleep(4000);
+        String getCurrentUrl = driver.getCurrentUrl();
+        String url = "http://tnm30test.tringhiatech.vn:9902/account/login";
+        if (getCurrentUrl.equals(url)) {
+            fail("Không đăng nhập thành công" + " " + getCurrentUrl);
+        } else {
+            try {
+                wait.until(ExpectedConditions.visibilityOfElementLocated(loginElement.btnProfile));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public void EmployeeLogin(String user, String password) throws InterruptedException {
+        commonResources.setText(loginElement.user, user);
+        commonResources.setText(loginElement.pass, password);
+        commonResources.clickButton(loginElement.submit);
+        Thread.sleep(4000);
+        String getCurrentUrl = driver.getCurrentUrl();
+        String url = "http://tnm30test.tringhiatech.vn:9902/account/login";
+        if (getCurrentUrl.equals(url)) {
+            fail("Không đăng nhập thành công" + " " + getCurrentUrl);
+        } else {
+            try {
+                wait.until(ExpectedConditions.visibilityOfElementLocated(loginElement.btnProfile));
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

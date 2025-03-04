@@ -19,12 +19,12 @@ import static com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnviro
 
 public class setUpDriver {
     public static WebDriver driver = null;
-
     @BeforeClass
+    // Cài đặt driver theo môi trường hiện tại của thiết bị PC
     public void SetupDriver() {
         String os = System.getProperty("os.name");
-//        WebDriverManager.chromedriver().clearDriverCache().setup();
-//        WebDriverManager.chromedriver().clearResolutionCache().setup();
+   //WebDriverManager.chromedriver().clearDriverCache().setup();
+   //WebDriverManager.chromedriver().clearResolutionCache().setup();
         switch (os) {
             case "Windows 10":
                 WebDriverManager.chromedriver().setup();
@@ -46,19 +46,23 @@ public class setUpDriver {
             setAllureEnvironment(driver);
         }
     }
+
     public static WebDriver getDriver() {
         return driver;
     }
+//lấy thông tin version của trình duyệt
     public String version(WebDriver driver) {
         Capabilities capabilities = ((RemoteWebDriver) driver).getCapabilities();
         String browserVersion = capabilities.getBrowserVersion();
         return browserVersion;
     }
+// lấy thong tin tên trình duyệt
     public String browser(WebDriver driver) {
         Capabilities capabilities = ((RemoteWebDriver) driver).getCapabilities();
         String browserName = capabilities.getBrowserName();
         return browserName;
     }
+// ghi thông tin os,ten và phiên bản driver vào báo cáo allure
     public void setAllureEnvironment(WebDriver driver) {
         allureEnvironmentWriter(
                 ImmutableMap.<String, String>builder()
