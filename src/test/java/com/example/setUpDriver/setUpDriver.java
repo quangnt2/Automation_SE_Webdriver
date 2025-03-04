@@ -19,46 +19,49 @@ import static com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnviro
 
 public class setUpDriver {
     public static WebDriver driver = null;
-
     @BeforeClass
     public void SetupDriver() {
-        String os = System.getProperty("os.name");
-//        WebDriverManager.chromedriver().clearDriverCache().setup();
-//        WebDriverManager.chromedriver().clearResolutionCache().setup();
-        switch (os) {
-            case "Windows 10":
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        switch (browser) {
+            case "chrome":
                 WebDriverManager.chromedriver().setup();
                 driver = new ChromeDriver();
                 break;
-            case "Mac OS X":
-                WebDriverManager.safaridriver().setup();
+            case "safari":
                 driver = new SafariDriver();
                 break;
-            case "Linux":
+            case "edge":
                 WebDriverManager.edgedriver().setup();
                 driver = new EdgeDriver();
                 break;
-            default:
+            case "firefox":
                 WebDriverManager.firefoxdriver().setup();
                 driver = new FirefoxDriver();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported browser: " + browser);
         }
         if (driver != null) {
             setAllureEnvironment(driver);
         }
     }
+
     public static WebDriver getDriver() {
         return driver;
     }
+    //lấy thông tin version của trình duyệt
     public String version(WebDriver driver) {
         Capabilities capabilities = ((RemoteWebDriver) driver).getCapabilities();
         String browserVersion = capabilities.getBrowserVersion();
         return browserVersion;
     }
+    // lấy thong tin tên trình duyệt
     public String browser(WebDriver driver) {
         Capabilities capabilities = ((RemoteWebDriver) driver).getCapabilities();
         String browserName = capabilities.getBrowserName();
         return browserName;
     }
+    // ghi thông tin os,ten và phiên bản driver vào báo cáo allure
     public void setAllureEnvironment(WebDriver driver) {
         allureEnvironmentWriter(
                 ImmutableMap.<String, String>builder()

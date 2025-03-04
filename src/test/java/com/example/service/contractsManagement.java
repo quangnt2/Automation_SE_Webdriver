@@ -12,18 +12,19 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
+import static com.example.queryData.queryData.contractsListColum;
+import static com.example.queryData.queryData.queryCountContracts;
 import static org.assertj.core.api.Fail.fail;
 
 public class contractsManagement {
     private static WebDriver driver;
     private WebDriverWait wait;
     private commonResources resources;
-    private saleManagementElement saleManagementElement;
-
+    private static saleManagementElement saleManagementElement;
     private static queryData query;
 
     public contractsManagement(WebDriver driver) {
@@ -35,51 +36,6 @@ public class contractsManagement {
     }
 
     public void clickMenuContract() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         resources.clickButton(saleManagementElement.saleManagementMenu);
         resources.clickButton(saleManagementElement.contract);
         try {
@@ -101,7 +57,7 @@ public class contractsManagement {
     public void ContractResults() throws SQLException, InterruptedException {
         String NumberRecord = splitCountNumber("/html[1]/body[1]/app-root[1]/ng-component[1]/div[1]/default-layout[1]/div[1]/div[1]/div[2]/div[2]/app-contract-list[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[1]/p-treetable[1]/div[1]/p-paginator[1]/div[1]/span[1]");
         String query = "select count(\"Id\") from \"Contracts\"";
-        String count = queryData.queryCountContracts(query);
+        String count = queryCountContracts(query);
         System.out.println("query:" + NumberRecord + "count:" + count);
         Assert.assertEquals(NumberRecord, count);
     }
@@ -130,13 +86,99 @@ public class contractsManagement {
                 for (WebElement w : cell) {
                     data += w.getText();
                     System.out.println(data);
-
                 }
             }
         } else {
             System.out.println("Xử lý nếu danh sách trống");
         }
+    }
 
+    // ------------------------------------------DASHBOARD-----------------------------------------------------------
+    public void CheckDateFormatTimeVI() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, 'ngày 'dd' tháng 'MM' năm' yyyy", new Locale("VI", "VN"));
+        String date = dateFormat.format(new Date());
+        WebElement element = driver.findElement(saleManagementElement.dateDashboard);
+        String getText = element.getText();
+        Assert.assertEquals(date, getText);
+    }
 
+    public void totalNumberOfContracts() throws SQLException {
+        WebElement element = driver.findElement(saleManagementElement.totalNumberOfContracts);
+        String getText = element.getText();
+        String[] str = getText.split("\\s");
+        String getNumberOfContracts = str[5];
+        String query = "select count(*) from \"Contracts\"";
+        String countContractInDatabase = queryCountContracts(query);
+        Assert.assertEquals(getNumberOfContracts, countContractInDatabase);
+    }
+
+    public void SearchContractsNumber() throws SQLException {
+        String queryContractsNumber = "select \"ContractNumber\" from \"Contracts\"";
+        String contractsNumber = randomData(queryContractsNumber);
+        resources.setText(saleManagementElement.searchContracts, contractsNumber);
+        WebElement element = driver.findElement(By.xpath("//tbody/tr[1]/td[3]/span[1]"));
+        String getText = element.getText();
+        Assert.assertEquals(contractsNumber, getText);
+    }
+
+    public void SearchContractsName() throws SQLException {
+        String queryContractsNumber = "select \"ContractName\" from \"Contracts\"";
+        String contractsNumber = randomData(queryContractsNumber);
+        resources.setText(saleManagementElement.searchContracts, contractsNumber);
+        WebElement element = driver.findElement(By.xpath("//tbody/tr[1]/td[4]/span[1]"));
+        String getText = element.getText();
+        Assert.assertEquals(contractsNumber, getText);
+    }
+
+    public void SearchCustomer() throws SQLException {
+        String queryContractsNumber = "select DISTINCT (C.\"Name\")\n" +
+                "from \"Contracts\" AS CT\n" +
+                "         JOIN \"Customers\" AS C\n" +
+                "              ON CT.\"CustomerId\" = C.\"Id\"";
+        String contractsNumber = randomData(queryContractsNumber);
+        resources.setText(saleManagementElement.searchContracts, contractsNumber);
+        WebElement element = driver.findElement(By.xpath("//tbody/tr[1]/td[5]/span[1]"));
+        String getText = element.getText();
+        Assert.assertEquals(contractsNumber, getText);
+    }
+
+    public void SearchEmployee() throws SQLException {
+        String sql = "select  concat(A.\"Surname\",' ',A.\"Name\") as FullName\n" +
+                "from \"Contracts\" as C\n" +
+                "         join \"Employees\" As E on C.\"SalespersonId\" = E.\"Id\"\n" +
+                "         join \"AbpUsers\" as A on E.\"UserId\" = A.\"Id\";";
+        String dataRandom = randomData(sql);
+        resources.setText(saleManagementElement.searchContracts, dataRandom);
+        WebElement element = driver.findElement(By.xpath("//tbody/tr[1]/td[7]/span[1]"));
+        String getText = element.getText();
+        Assert.assertEquals(dataRandom, getText);
+
+    }
+
+    public static String randomData(String sql) throws SQLException {
+        List<String> listData = contractsListColum(sql);
+        Random ran = new Random();
+        int index = ran.nextInt(listData.size());
+        String data = listData.get(index);
+        return data;
+    }
+
+    public void FVContracts() {
+        resources.clickButton(saleManagementElement.createContracts);
+        WebElement element = driver.findElement(saleManagementElement.dropListCustomer);
+        List<WebElement> elements = element.findElements(saleManagementElement.dataInDropList);
+        if (elements.isEmpty()) {
+            List<String> list = new ArrayList<>();
+            for (WebElement data : elements) {
+                String name = data.getText();
+                list.add(name);
+            }
+            if (list.isEmpty()) {
+                Random ran = new Random();
+                int index = ran.nextInt(list.size());
+                String getCustomer = list.get(index);
+                resources.setText(saleManagementElement.searchCustomer, getCustomer);
+            }
+        }
     }
 }

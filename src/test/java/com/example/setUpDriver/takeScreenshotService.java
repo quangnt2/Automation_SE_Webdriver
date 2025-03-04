@@ -17,23 +17,26 @@ import java.util.Locale;
 
 public class takeScreenshotService {
     public void takeScreenshotServiceI(ITestResult testResult) throws FileNotFoundException {
-        SimpleDateFormat dateFormatTimeVI = new SimpleDateFormat("EEEE_yyyy_MM_dd_HH_mm");
-        SimpleDateFormat dateFormatTimeEN = new SimpleDateFormat("EEEE_yyyy_MM_dd");
-        String dateVI = dateFormatTimeVI.format(new Date());
-        String dateEN = dateFormatTimeEN.format(new Date());
-        WebDriver driver = setUpDriver.getDriver();
-        if (driver instanceof TakesScreenshot) {
-            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
-            File source = takesScreenshot.getScreenshotAs(OutputType.FILE); // đầu ra là dạng file
-            String fileName = testResult.getName() + "_" + dateVI + ".png"; // tên file với định dạng là png
-            String filePath = "./screenshots/" + dateEN + "/" + fileName; // đuơng dẫn lưu file
-            try {
-                FileUtils.forceMkdir(new File("./screenshots/"));
-                FileUtils.copyFile(source, new File(filePath));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if (testResult.getStatus() == ITestResult.FAILURE) {
+            SimpleDateFormat dateFormatTimeVI = new SimpleDateFormat("EEEE_yyyy_MM_dd_HH_mm");
+            SimpleDateFormat dateFormatTimeEN = new SimpleDateFormat("EEEE_yyyy_MM_dd");
+            String dateVI = dateFormatTimeVI.format(new Date());
+            String dateEN = dateFormatTimeEN.format(new Date());
+            WebDriver driver = setUpDriver.getDriver();
+            if (driver instanceof TakesScreenshot) {
+                TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+                File source = takesScreenshot.getScreenshotAs(OutputType.FILE); // đầu ra là dạng file
+                String fileName = testResult.getName() + "_" + dateVI + ".png"; // tên file với định dạng là png
+                String filePath = "./screenshots/" + dateEN + "/" + fileName; // đuơng dẫn lưu file
+                try {
+                    FileUtils.forceMkdir(new File("./screenshots/"));
+                    FileUtils.copyFile(source, new File(filePath));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Allure.addAttachment(fileName, new FileInputStream(filePath));
             }
-            Allure.addAttachment(fileName, new FileInputStream(filePath));
         }
+
     }
 }
